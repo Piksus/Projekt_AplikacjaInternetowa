@@ -7,44 +7,30 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header>
-        <h1>EventManager</h1>
-        <p>Panel zarządzania wydarzeniami</p>
-    </header>
-
-    <nav>
-        <a href="#dashboard">Dashboard</a>
-        <a href="#events">Wydarzenia</a>
-    </nav>
-
-    <main>
-        <section id="dashboard">
-            <h2>Dashboard</h2>
-            <div class="stats">
-                <div>Wydarzenia <span>3</span></div>
-                <div>Zadania <span>12</span></div>
-                <div>Uczestnicy <span>24</span></div>
+    <div class="container">
+        <header>
+            <div class="brand">
+                <div>
+                    <h1>EventManager</h1>
+                    <p>Panel zarządzania wydarzeniami</p>
+                </div>
+                <button class="nav-toggle" id="navToggle">&#9776;</button>
             </div>
-        </section>
+        </header>
 
-        <section id="events">
-            <h2>Wydarzenia</h2>
-            <article>
-                <h3>Konferencja Technologiczna</h3>
-                <p>15 lipca 2026 | Warszawa</p>
-                <p>Status: Aktywne</p>
-            </article>
-            <article>
-                <h3>Warsztaty React</h3>
-                <p>22 sierpnia 2026 | Kraków</p>
-                <p>Status: Aktywne</p>
-            </article>
-            <article>
-                <h3>Hackathon Weekend</h3>
-                <p>5 września 2026 | Wrocław</p>
-                <p>Status: Planowane</p>
-            </article>
-        </section>
-    </main>
+        <nav>
+            <ul id="navMenu">
+                <li><a href="#dashboard" class="nav-link">Dashboard</a></li>
+                <li><a href="#events" class="nav-link">Wydarzenia</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <section id="dashboard"></section>
+            <section id="events"></section>
+        </main>
+    </div>
+
+    <script src="js/script.js"></script>
 </body>
 </html>
