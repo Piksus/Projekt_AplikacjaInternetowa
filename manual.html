@@ -26,82 +26,99 @@
     <div class="container manual-wrap">
         <a href="index.html" class="back-link">&larr; Powrót do panelu</a>
         <h1>EventManager</h1>
-        <p>Instrukcja użytkownika &mdash; Panel zarządzania wydarzeniami (wersja SPA)</p>
+        <p>Instrukcja użytkownika &mdash; Panel zarządzania wydarzeniami (wersja MPA)</p>
 
         <div class="toc">
             <h3>Spis treści</h3>
             <ol>
                 <li><a href="#overview">Przegląd aplikacji</a></li>
-                <li><a href="#dashboard">Dashboard</a></li>
-                <li><a href="#events">Lista wydarzeń</a></li>
-                <li><a href="#detail">Szczegóły wydarzenia</a></li>
+                <li><a href="#dashboard">Dashboard (index.html)</a></li>
+                <li><a href="#events">Lista wydarzeń (events.html)</a></li>
+                <li><a href="#detail">Szczegóły wydarzenia (event.html)</a></li>
                 <li><a href="#tips">Wskazówki</a></li>
             </ol>
         </div>
 
         <section id="overview">
             <h2>1. Przegląd aplikacji</h2>
-            <p>EventManager to aplikacja webowa typu SPA (Single Page Application) do zarządzania wydarzeniami, zadaniami i uczestnikami. Wszystkie widoki dostępne są w obrębie jednej strony.</p>
-            <p>Dane przechowywane są w localStorage &ndash; trwałe między odświeżeniami.</p>
+            <p>EventManager to aplikacja webowa typu MPA (Multi Page Application) do zarządzania wydarzeniami, zadaniami i uczestnikami. Składa się z trzech podstron:</p>
+            <ul>
+                <li><strong>Dashboard</strong> (<code>index.html</code>) &ndash; statystyki, ostatnie wydarzenia, wszystkie zadania z filtrowaniem</li>
+                <li><strong>Lista wydarzeń</strong> (<code>events.html</code>) &ndash; pełna lista z wyszukiwarką i filtrami</li>
+                <li><strong>Szczegóły wydarzenia</strong> (<code>event.html?id=X</code>) &ndash; zadania i uczestnicy konkretnego wydarzenia</li>
+            </ul>
+            <p>Dane przechowywane są w pamięci przeglądarki (localStorage) i są trwałe między odświeżeniami.</p>
         </section>
 
         <section id="dashboard">
-            <h2>2. Dashboard</h2>
-            <p>Widok startowy z podsumowaniem i listą wszystkich zadań.</p>
+            <h2>2. Dashboard (index.html)</h2>
+            <p>Strona startowa z podsumowaniem.</p>
             <h3>Statystyki</h3>
             <div class="step">
                 <p><span class="snum">1</span> Liczba wydarzeń, zadania (wykonane / wszystkie) i uczestnicy.</p>
             </div>
+            <h3>Ostatnie wydarzenia</h3>
+            <div class="step">
+                <p><span class="snum">1</span> Kliknij kartę aby przejść do szczegółów wydarzenia.</p>
+                <p><span class="snum">2</span> Kliknij <strong>Zobacz wszystkie</strong> aby przejść do pełnej listy.</p>
+            </div>
             <h3>Wszystkie zadania</h3>
             <div class="step">
-                <p><span class="snum">1</span> Wybierz wydarzenie z listy rozwijanej aby filtrować.</p>
+                <p><span class="snum">1</span> Wybierz wydarzenie z listy rozwijanej aby filtrować zadania.</p>
                 <p><span class="snum">2</span> Kliknij checkbox aby oznaczyć zadanie jako wykonane.</p>
                 <p><span class="snum">3</span> Kliknij <strong>&times;</strong> aby usunąć zadanie.</p>
             </div>
         </section>
 
         <section id="events">
-            <h2>3. Lista wydarzeń</h2>
-            <p>Kliknij <strong>Wydarzenia</strong> w menu nawigacji.</p>
+            <h2>3. Lista wydarzeń (events.html)</h2>
+            <p>Pełna lista wszystkich wydarzeń z możliwością filtrowania i wyszukiwania.</p>
             <h3>Filtrowanie</h3>
             <div class="step">
-                <p><span class="snum">1</span> Wpisz frazę w polu wyszukiwania.</p>
-                <p><span class="snum">2</span> Wybierz status z listy rozwijanej.</p>
+                <p><span class="snum">1</span> Wpisz frazę w polu <strong>Szukaj</strong> aby filtrować po nazwie lub opisie.</p>
+                <p><span class="snum">2</span> Wybierz status (Wszystkie / Aktywne / Planowane) z listy rozwijanej.</p>
             </div>
             <h3>Dodawanie wydarzenia</h3>
             <div class="step">
                 <p><span class="snum">1</span> Kliknij <strong>+ Dodaj event</strong>.</p>
-                <p><span class="snum">2</span> Wypełnij formularz i kliknij <strong>Dodaj</strong>.</p>
+                <p><span class="snum">2</span> Wypełnij formularz (nazwa, data, miejsce, opis).</p>
+                <p><span class="snum">3</span> Kliknij <strong>Dodaj</strong>.</p>
+            </div>
+            <h3>Szczegóły</h3>
+            <div class="step">
+                <p><span class="snum">1</span> Kliknij kartę wydarzenia aby przejść do strony szczegółów.</p>
             </div>
         </section>
 
         <section id="detail">
-            <h2>4. Szczegóły wydarzenia</h2>
-            <p>Kliknij kartę wydarzenia na liście aby otworzyć widok szczegółów.</p>
+            <h2>4. Szczegóły wydarzenia (event.html?id=X)</h2>
+            <p>Widok konkretnego wydarzenia z zadaniami i uczestnikami.</p>
             <h3>Zadania</h3>
             <div class="step">
-                <p><span class="snum">1</span> Oznaczaj checkboxy &ndash; pasek postępu aktualizuje się.</p>
-                <p><span class="snum">2</span> Dodawaj zadania przez pole <strong>Nowe zadanie</strong>.</p>
-                <p><span class="snum">3</span> Usuwaj klikając <strong>&times;</strong>.</p>
+                <p><span class="snum">1</span> Kliknij checkbox aby oznaczyć zadanie jako wykonane &ndash; pasek postępu aktualizuje się.</p>
+                <p><span class="snum">2</span> Wpisz nazwę w polu <strong>Nowe zadanie</strong> i kliknij <strong>Dodaj</strong>.</p>
+                <p><span class="snum">3</span> Kliknij <strong>&times;</strong> przy zadaniu aby je usunąć.</p>
             </div>
             <h3>Uczestnicy</h3>
             <div class="step">
                 <p><span class="snum">1</span> Kliknij zakładkę <strong>Uczestnicy</strong>.</p>
-                <p><span class="snum">2</span> Dodawaj uczestników z imieniem, emailem i rolą.</p>
-                <p><span class="snum">3</span> Usuwaj klikając <strong>&times;</strong>.</p>
+                <p><span class="snum">2</span> Wpisz imię, email i wybierz rolę, następnie kliknij <strong>Dodaj</strong>.</p>
+                <p><span class="snum">3</span> Kliknij <strong>&times;</strong> przy uczestniku aby go usunąć.</p>
             </div>
             <h3>Usuwanie wydarzenia</h3>
             <div class="step">
-                <p><span class="snum">1</span> Kliknij <strong>Usuń wydarzenie</strong> i potwierdź.</p>
+                <p><span class="snum">1</span> Kliknij <strong>Usuń wydarzenie</strong> (czerwony przycisk).</p>
+                <p><span class="snum">2</span> Potwierdź w oknie dialogowym &ndash; nastąpi powrót do listy.</p>
             </div>
         </section>
 
         <section id="tips">
             <h2>5. Wskazówki</h2>
             <ul>
-                <li>Dane zapisują się automatycznie w localStorage.</li>
-                <li>Nawigacja przez menu górne &ndash; na mobile rozwijane przez ikonę &#9776;.</li>
-                <li>Aplikacja w pełni responsywna.</li>
+                <li>Dane zapisują się automatycznie w localStorage &ndash; nie musisz niczego zapisywać ręcznie.</li>
+                <li>Nawigacja między stronami odbywa się przez menu górne.</li>
+                <li>Aplikacja jest w pełni responsywna &ndash; działa na telefonach i tabletach.</li>
+                <li>Filtry i wyszukiwanie działają w czasie rzeczywistym.</li>
             </ul>
         </section>
 

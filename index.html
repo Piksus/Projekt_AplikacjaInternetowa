@@ -10,62 +10,35 @@
     <div class="container">
         <header>
             <div class="brand">
-                <div>
-                    <h1>EventManager</h1>
-                    <p>Panel zarządzania wydarzeniami</p>
-                </div>
-                <button class="nav-toggle" id="navToggle">&#9776;</button>
+                <h1>EventManager</h1>
+                <p>Panel zarządzania wydarzeniami</p>
             </div>
         </header>
-
         <nav>
-            <ul id="navMenu">
-                <li><a href="#dashboard" class="nav-link">Dashboard <span id="eventCount">0</span></a></li>
-                <li><a href="#events" class="nav-link">Wydarzenia</a></li>
+            <ul>
+                <li><a href="index.html" class="active">Dashboard</a></li>
+                <li><a href="events.html">Wydarzenia</a></li>
             </ul>
         </nav>
-
-        <main id="mainContent"></main>
+        <main>
+            <section>
+                <h2>Dashboard</h2>
+                <div class="stats" id="stats"></div>
+            </section>
+            <section>
+                <h2>Ostatnie wydarzenia</h2>
+                <div class="events-grid" id="recentEvents"></div>
+                <p style="text-align:center;margin-top:16px"><a href="events.html" class="btn btn-primary">Zobacz wszystkie</a></p>
+            </section>
+            <section>
+                <div class="card-header"><h2>Wszystkie zadania</h2>
+                    <select id="taskFilterEvent" class="form-input filter-select task-filter-select"></select>
+                </div>
+                <div id="allTasksList" class="all-tasks"></div>
+            </section>
+        </main>
     </div>
-
-    <div id="addEventModal" class="modal">
-        <div class="modal-content">
-            <button class="modal-close">&times;</button>
-            <h3>Dodaj wydarzenie</h3>
-            <form id="addEventForm">
-                <div class="form-group">
-                    <label for="evTitle">Nazwa *</label>
-                    <input type="text" id="evTitle" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label for="evDate">Data *</label>
-                    <input type="date" id="evDate" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label for="evLocation">Miejsce *</label>
-                    <input type="text" id="evLocation" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label for="evDesc">Opis</label>
-                    <textarea id="evDesc" class="form-input" rows="3"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Dodaj</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="deleteConfirmModal" class="modal">
-        <div class="modal-content" style="max-width:400px">
-            <button class="modal-close">&times;</button>
-            <h3>Potwierdzenie</h3>
-            <p id="deleteConfirmMsg" style="margin:16px 0">Czy na pewno chcesz usunąć to wydarzenie?</p>
-            <div style="display:flex;gap:8px;justify-content:flex-end">
-                <button class="btn btn-outline" id="deleteCancelBtn">Anuluj</button>
-                <button class="btn btn-primary" style="background:#e74c3c" id="deleteConfirmBtn">Usuń</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="js/script.js"></script>
+    <script src="js/store.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
 </html>
