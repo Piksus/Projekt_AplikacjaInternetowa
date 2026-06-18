@@ -20,15 +20,12 @@
 
         <nav>
             <ul id="navMenu">
-                <li><a href="#dashboard" class="nav-link">Dashboard</a></li>
+                <li><a href="#dashboard" class="nav-link">Dashboard <span id="eventCount">0</span></a></li>
                 <li><a href="#events" class="nav-link">Wydarzenia</a></li>
             </ul>
         </nav>
 
-        <main>
-            <section id="dashboard"></section>
-            <section id="events"></section>
-        </main>
+        <main id="mainContent"></main>
     </div>
 
     <div id="addEventModal" class="modal">
@@ -54,13 +51,6 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Dodaj</button>
             </form>
-        </div>
-    </div>
-
-    <div id="eventDetailModal" class="modal">
-        <div class="modal-content">
-            <button class="modal-close">&times;</button>
-            <div id="eventDetailBody"></div>
         </div>
     </div>
 

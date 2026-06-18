@@ -1,11 +1,9 @@
 var store = {
     events: [
         {
-            id: 1,
-            title: 'Konferencja Technologiczna',
-            date: '2026-07-15',
+            id: 1, title: 'Konferencja Technologiczna', date: '2026-07-15',
             location: 'Warszawa, Centrum Kongresowe',
-            desc: 'Największe wydarzenie branżowe roku.',
+            desc: 'Największe wydarzenie branżowe roku. Prelekcje, warsztaty i networking.',
             status: 'active',
             tasks: [
                 { id: 1, text: 'Przygotowanie sali', done: false },
@@ -19,9 +17,7 @@ var store = {
             ]
         },
         {
-            id: 2,
-            title: 'Warsztaty React',
-            date: '2026-08-22',
+            id: 2, title: 'Warsztaty React', date: '2026-08-22',
             location: 'Kraków, Makerspace',
             desc: 'Praktyczne warsztaty z React 19.',
             status: 'active',
@@ -34,11 +30,9 @@ var store = {
             ]
         },
         {
-            id: 3,
-            title: 'Hackathon Weekend',
-            date: '2026-09-05',
+            id: 3, title: 'Hackathon Weekend', date: '2026-09-05',
             location: 'Wrocław, Park Technologiczny',
-            desc: '48h maraton programowania.',
+            desc: '48h maraton programowania dla zespołów.',
             status: 'planned',
             tasks: [
                 { id: 6, text: 'Znalezienie sponsorów', done: false },
@@ -49,28 +43,30 @@ var store = {
             participants: []
         }
     ],
-    nextId: 10,
-    nextTaskId: 10,
-    nextPartId: 10
+    nextId: 10, nextTaskId: 10, nextPartId: 10
 };
 
+var currentView = 'dashboard';
+
 function renderDashboard() {
+    currentView = 'dashboard';
     var totalTasks = store.events.reduce(function (s, e) { return s + e.tasks.length; }, 0);
     var doneTasks = store.events.reduce(function (s, e) { return s + e.tasks.filter(function (t) { return t.done; }).length; }, 0);
     var participants = store.events.reduce(function (s, e) { return s + e.participants.length; }, 0);
 
-    document.getElementById('dashboard').innerHTML =
-        '<h2>Dashboard</h2><div class="stats">' +
+    document.getElementById('mainContent').innerHTML =
+        '<section><h2>Dashboard</h2><div class="stats">' +
         '<div>Wydarzenia <span>' + store.events.length + '</span></div>' +
         '<div>Zadania <span>' + doneTasks + '/' + totalTasks + '</span></div>' +
-        '<div>Uczestnicy <span>' + participants + '</span></div></div>';
+        '<div>Uczestnicy <span>' + participants + '</span></div></div></section>';
 }
 
 function renderEvents() {
-    var html = '<div class="card-header"><h2>Wydarzenia</h2>' +
-        '<button class="btn btn-primary btn-sm" id="addEventBtn">+ Dodaj event</button></div>';
+    currentView = 'events';
+    var html = '<section><div class="card-header"><h2>Wydarzenia</h2>' +
+        '<button class="btn btn-primary btn-sm" id="addEventBtn">+ Dodaj event</button></div>' +
+        '<div class="events-grid">';
 
-    html += '<div class="events-grid">';
     store.events.forEach(function (e) {
         var done = e.tasks.filter(function (t) { return t.done; }).length;
         var pct = e.tasks.length > 0 ? Math.round(done / e.tasks.length * 100) : 0;
@@ -85,82 +81,77 @@ function renderEvents() {
             ' <span class="event-status ' + e.status + '">' + (e.status === 'active' ? 'Aktywne' : 'Planowane') + '</span></p>' +
             '</article>';
     });
-    html += '</div>';
-    document.getElementById('events').innerHTML = html;
+
+    html += '</div></section>';
+    document.getElementById('mainContent').innerHTML = html;
 
     document.getElementById('addEventBtn').addEventListener('click', function () {
         document.getElementById('addEventModal').classList.add('open');
     });
     document.querySelectorAll('.event-card').forEach(function (card) {
         card.addEventListener('click', function () {
-            openEventDetail(this.dataset.id);
+            renderEventDetail(this.dataset.id);
         });
     });
 }
 
-function openEventDetail(id) {
+function renderEventDetail(id) {
+    currentView = 'detail';
     var e = store.events.find(function (ev) { return ev.id == id; });
     if (!e) return;
-    var modal = document.getElementById('eventDetailModal');
-    var body = document.getElementById('eventDetailBody');
-    var done = e.tasks.filter(function (t) { return t.done; }).length;
-    var pct = e.tasks.length > 0 ? Math.round(done / e.tasks.length * 100) : 0;
+    var doneTasks = e.tasks.filter(function (t) { return t.done; }).length;
+    var pct = e.tasks.length > 0 ? Math.round(doneTasks / e.tasks.length * 100) : 0;
 
-    var html = '<h3>' + e.title + '</h3>' +
-        '<p><strong>Data:</strong> ' + formatDate(e.date) + '</p>' +
+    var html = '<section><button class="btn btn-outline btn-sm" id="backToEvents">&larr; Powrót do listy</button>' +
+        '<div class="detail-header"><h2>' + e.title + '</h2>' +
+        '<span class="event-status ' + e.status + '">' + (e.status === 'active' ? 'Aktywne' : 'Planowane') + '</span></div>' +
+        '<p class="event-date"><strong>Data:</strong> ' + formatDate(e.date) + '</p>' +
         '<p><strong>Miejsce:</strong> ' + e.location + '</p>' +
-        '<p>' + e.desc + '</p>' +
-        '<div class="progress-section"><div class="progress-header"><span>Postęp zadań</span><span>' + done + '/' + e.tasks.length + ' (' + pct + '%)</span></div>' +
+        '<p class="event-desc-full">' + e.desc + '</p>' +
+        '<div class="progress-section"><div class="progress-header"><span>Postęp zadań</span><span>' + doneTasks + '/' + e.tasks.length + ' (' + pct + '%)</span></div>' +
         '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div></div>' +
-        '<div class="detail-tabs"><button class="tab-btn active" data-tab="tasks">Zadania</button><button class="tab-btn" data-tab="participants">Uczestnicy</button></div>';
+        '<div class="detail-tabs"><button class="tab-btn active" data-tab="tasks">Zadania (' + e.tasks.length + ')</button>' +
+        '<button class="tab-btn" data-tab="participants">Uczestnicy (' + e.participants.length + ')</button></div>';
 
-    html += '<div id="tasksTab" class="tab-content active">';
-    html += '<ul class="task-list" data-event="' + e.id + '">';
+    html += '<div id="tasksTab" class="tab-content active"><ul class="task-list">';
     e.tasks.forEach(function (t) {
-        html += '<li><label><input type="checkbox" class="task-check" data-task="' + t.id + '" data-event="' + e.id + '"' + (t.done ? ' checked' : '') + '> ' + t.text + '</label></li>';
+        html += '<li><label><input type="checkbox" class="task-check" data-task="' + t.id + '"' + (t.done ? ' checked' : '') + '> ' + t.text + '</label></li>';
     });
-    html += '</ul>';
-    html += '<div class="add-row"><input type="text" id="newTaskInput" placeholder="Nowe zadanie...">' +
+    html += '</ul><div class="add-row"><input type="text" id="newTaskInput" placeholder="Nowe zadanie...">' +
         '<button class="btn btn-primary btn-sm" id="addTaskBtn">Dodaj</button></div></div>';
 
-    html += '<div id="participantsTab" class="tab-content">';
-    html += '<div class="participants-grid">';
+    html += '<div id="participantsTab" class="tab-content"><div class="participants-grid">';
     e.participants.forEach(function (p) {
-        html += '<div class="participant-card"><strong>' + p.name + '</strong>' +
-            '<span class="part-email">' + p.email + '</span>' +
-            '<span class="part-company">' + p.company + '</span>' +
+        html += '<div class="participant-card"><span class="avatar">' + getInitials(p.name) + '</span>' +
+            '<div><strong>' + p.name + '</strong><span class="part-email">' + p.email + '</span></div>' +
             '<span class="part-role ' + p.role + '">' + roleLabel(p.role) + '</span></div>';
     });
-    html += '</div>';
-    html += '<div class="add-row"><input type="text" id="newPartName" placeholder="Imię i nazwisko...">' +
+    html += '</div>' +
+        '<div class="add-row"><input type="text" id="newPartName" placeholder="Imię i nazwisko...">' +
         '<input type="email" id="newPartEmail" placeholder="Email...">' +
         '<select id="newPartRole"><option value="attendee">Uczestnik</option><option value="speaker">Prelegent</option><option value="organizer">Organizator</option><option value="sponsor">Sponsor</option></select>' +
-        '<button class="btn btn-primary btn-sm" id="addPartBtn">Dodaj</button></div></div>';
+        '<button class="btn btn-primary btn-sm" id="addPartBtn">Dodaj</button></div></div></section>';
 
-    body.innerHTML = html;
-    modal.classList.add('open');
+    document.getElementById('mainContent').innerHTML = html;
 
-    body.querySelectorAll('.tab-btn').forEach(function (btn) {
+    document.getElementById('backToEvents').addEventListener('click', renderEvents);
+
+    document.querySelectorAll('.tab-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            body.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
-            body.querySelectorAll('.tab-content').forEach(function (c) { c.classList.remove('active'); });
+            document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function (c) { c.classList.remove('active'); });
             this.classList.add('active');
             document.getElementById(this.dataset.tab + 'Tab').classList.add('active');
         });
     });
 
-    body.querySelectorAll('.task-check').forEach(function (cb) {
+    document.querySelectorAll('.task-check').forEach(function (cb) {
         cb.addEventListener('change', function () {
-            var evId = this.dataset.event;
             var taskId = this.dataset.task;
-            var ev = store.events.find(function (x) { return x.id == evId; });
-            if (ev) {
-                var task = ev.tasks.find(function (t) { return t.id == taskId; });
-                if (task) task.done = this.checked;
-            }
-            openEventDetail(evId);
-            renderEvents();
-            renderDashboard();
+            var task = e.tasks.find(function (t) { return t.id == taskId; });
+            if (task) task.done = this.checked;
+            renderEventDetail(e.id);
+            updateNavCounts();
         });
     });
 
@@ -168,12 +159,9 @@ function openEventDetail(id) {
         var input = document.getElementById('newTaskInput');
         var text = input.value.trim();
         if (!text) return;
-        var ev = store.events.find(function (x) { return x.id == e.id; });
-        if (ev) ev.tasks.push({ id: store.nextTaskId++, text: text, done: false });
-        input.value = '';
-        openEventDetail(e.id);
-        renderEvents();
-        renderDashboard();
+        e.tasks.push({ id: store.nextTaskId++, text: text, done: false });
+        renderEventDetail(e.id);
+        updateNavCounts();
     });
 
     document.getElementById('addPartBtn').addEventListener('click', function () {
@@ -181,14 +169,29 @@ function openEventDetail(id) {
         var email = document.getElementById('newPartEmail').value.trim();
         var role = document.getElementById('newPartRole').value;
         if (!name || !email) return;
-        var ev = store.events.find(function (x) { return x.id == e.id; });
-        if (ev) ev.participants.push({ id: store.nextPartId++, name: name, email: email, company: '', role: role });
+        e.participants.push({ id: store.nextPartId++, name: name, email: email, company: '', role: role });
         document.getElementById('newPartName').value = '';
         document.getElementById('newPartEmail').value = '';
-        openEventDetail(e.id);
-        renderEvents();
-        renderDashboard();
+        renderEventDetail(e.id);
+        updateNavCounts();
     });
+}
+
+function updateNavCounts() {
+    var totalTasks = store.events.reduce(function (s, e) { return s + e.tasks.length; }, 0);
+    var doneTasks = store.events.reduce(function (s, e) { return s + e.tasks.filter(function (t) { return t.done; }).length; }, 0);
+    var participants = store.events.reduce(function (s, e) { return s + e.participants.length; }, 0);
+
+    var eventCount = document.getElementById('eventCount');
+    var taskCount = document.getElementById('taskCount');
+    var partCount = document.getElementById('partCount');
+    if (eventCount) eventCount.textContent = store.events.length;
+    if (taskCount) taskCount.textContent = doneTasks + '/' + totalTasks;
+    if (partCount) partCount.textContent = participants;
+}
+
+function getInitials(name) {
+    return name.split(' ').map(function (n) { return n[0]; }).join('').toUpperCase().substring(0, 2);
 }
 
 function roleLabel(r) {
@@ -203,7 +206,7 @@ function formatDate(dateStr) {
 
 document.addEventListener('DOMContentLoaded', function () {
     renderDashboard();
-    renderEvents();
+    updateNavCounts();
 
     document.getElementById('navToggle').addEventListener('click', function () {
         document.getElementById('navMenu').classList.toggle('open');
@@ -213,8 +216,8 @@ document.addEventListener('DOMContentLoaded', function () {
         link.addEventListener('click', function (e) {
             e.preventDefault();
             var t = this.getAttribute('href').substring(1);
-            document.querySelectorAll('main section').forEach(function (s) { s.style.display = 'none'; });
-            document.getElementById(t).style.display = 'block';
+            if (t === 'dashboard') renderDashboard();
+            if (t === 'events') renderEvents();
             document.getElementById('navMenu').classList.remove('open');
         });
     });
@@ -232,8 +235,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         this.reset();
         document.getElementById('addEventModal').classList.remove('open');
-        renderDashboard();
         renderEvents();
+        updateNavCounts();
     });
 
     document.querySelectorAll('.modal-close').forEach(function (btn) {
