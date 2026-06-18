@@ -1,55 +1,39 @@
-var store = {
-    events: [
-        {
-            id: 1, title: 'Konferencja Technologiczna', date: '2026-07-15',
-            location: 'Warszawa, Centrum Kongresowe',
-            desc: 'Największe wydarzenie branżowe roku. Prelekcje, warsztaty i networking.',
-            status: 'active',
-            tasks: [
-                { id: 1, text: 'Przygotowanie sali', done: false },
-                { id: 2, text: 'Zamówienie cateringu', done: false },
-                { id: 3, text: 'Wydrukowanie identyfikatorów', done: true }
-            ],
-            participants: [
-                { id: 1, name: 'Anna Kowalska', email: 'anna@example.com', company: 'ABC', role: 'speaker' },
-                { id: 2, name: 'Jan Nowak', email: 'jan@example.com', company: 'XYZ', role: 'attendee' },
-                { id: 3, name: 'Ewa Wiśniewska', email: 'ewa@example.com', company: '123', role: 'organizer' }
-            ]
-        },
-        {
-            id: 2, title: 'Warsztaty React', date: '2026-08-22',
-            location: 'Kraków, Makerspace',
-            desc: 'Praktyczne warsztaty z React 19.',
-            status: 'active',
-            tasks: [
-                { id: 4, text: 'Przygotowanie materiałów', done: true },
-                { id: 5, text: 'Test sprzętu', done: false }
-            ],
-            participants: [
-                { id: 4, name: 'Piotr Zieliński', email: 'piotr@example.com', company: 'TechCorp', role: 'sponsor' }
-            ]
-        },
-        {
-            id: 3, title: 'Hackathon Weekend', date: '2026-09-05',
-            location: 'Wrocław, Park Technologiczny',
-            desc: '48h maraton programowania dla zespołów.',
-            status: 'planned',
-            tasks: [
-                { id: 6, text: 'Znalezienie sponsorów', done: false },
-                { id: 7, text: 'Przygotowanie regulaminu', done: true },
-                { id: 8, text: 'Promocja wydarzenia', done: false },
-                { id: 9, text: 'Rezerwacja sal', done: false }
-            ],
-            participants: []
-        }
-    ],
-    nextId: 10, nextTaskId: 10, nextPartId: 10
-};
+var defaultEvents = [
+    { id: 1, title: 'Konferencja Technologiczna', date: '2026-07-15', location: 'Warszawa, Centrum Kongresowe', desc: 'Największe wydarzenie branżowe roku. Prelekcje, warsztaty i networking.', status: 'active', tasks: [
+        { id: 1, text: 'Przygotowanie sali', done: false }, { id: 2, text: 'Zamówienie cateringu', done: false }, { id: 3, text: 'Wydrukowanie identyfikatorów', done: true }
+    ], participants: [
+        { id: 1, name: 'Anna Kowalska', email: 'anna@example.com', company: 'ABC', role: 'speaker' }, { id: 2, name: 'Jan Nowak', email: 'jan@example.com', company: 'XYZ', role: 'attendee' }, { id: 3, name: 'Ewa Wiśniewska', email: 'ewa@example.com', company: '123', role: 'organizer' }
+    ]},
+    { id: 2, title: 'Warsztaty React', date: '2026-08-22', location: 'Kraków, Makerspace', desc: 'Praktyczne warsztaty z React 19.', status: 'active', tasks: [
+        { id: 4, text: 'Przygotowanie materiałów', done: true }, { id: 5, text: 'Test sprzętu', done: false }
+    ], participants: [
+        { id: 4, name: 'Piotr Zieliński', email: 'piotr@example.com', company: 'TechCorp', role: 'sponsor' }
+    ]},
+    { id: 3, title: 'Hackathon Weekend', date: '2026-09-05', location: 'Wrocław, Park Technologiczny', desc: '48h maraton programowania dla zespołów.', status: 'planned', tasks: [
+        { id: 6, text: 'Znalezienie sponsorów', done: false }, { id: 7, text: 'Przygotowanie regulaminu', done: true }, { id: 8, text: 'Promocja wydarzenia', done: false }, { id: 9, text: 'Rezerwacja sal', done: false }
+    ], participants: []}
+];
 
-var currentView = 'dashboard';
+function loadStore() {
+    try {
+        var saved = localStorage.getItem('eventmanager_store');
+        if (saved) {
+            var data = JSON.parse(saved);
+            store = data;
+            return;
+        }
+    } catch (e) {}
+    store = { events: defaultEvents, nextId: 10, nextTaskId: 10, nextPartId: 10 };
+}
+
+function saveStore() {
+    try { localStorage.setItem('eventmanager_store', JSON.stringify(store)); } catch (e) {}
+}
+
+var store;
+loadStore();
 
 function renderDashboard() {
-    currentView = 'dashboard';
     var totalTasks = store.events.reduce(function (s, e) { return s + e.tasks.length; }, 0);
     var doneTasks = store.events.reduce(function (s, e) { return s + e.tasks.filter(function (t) { return t.done; }).length; }, 0);
     var participants = store.events.reduce(function (s, e) { return s + e.participants.length; }, 0);
@@ -62,7 +46,6 @@ function renderDashboard() {
 }
 
 function renderEvents() {
-    currentView = 'events';
     var html = '<section><div class="card-header"><h2>Wydarzenia</h2>' +
         '<button class="btn btn-primary btn-sm" id="addEventBtn">+ Dodaj event</button></div>' +
         '<div class="events-grid">';
@@ -96,9 +79,8 @@ function renderEvents() {
 }
 
 function renderEventDetail(id) {
-    currentView = 'detail';
     var e = store.events.find(function (ev) { return ev.id == id; });
-    if (!e) return;
+    if (!e) return renderEvents();
     var doneTasks = e.tasks.filter(function (t) { return t.done; }).length;
     var pct = e.tasks.length > 0 ? Math.round(doneTasks / e.tasks.length * 100) : 0;
 
@@ -150,6 +132,7 @@ function renderEventDetail(id) {
             var taskId = this.dataset.task;
             var task = e.tasks.find(function (t) { return t.id == taskId; });
             if (task) task.done = this.checked;
+            saveStore();
             renderEventDetail(e.id);
             updateNavCounts();
         });
@@ -160,6 +143,7 @@ function renderEventDetail(id) {
         var text = input.value.trim();
         if (!text) return;
         e.tasks.push({ id: store.nextTaskId++, text: text, done: false });
+        saveStore();
         renderEventDetail(e.id);
         updateNavCounts();
     });
@@ -172,22 +156,15 @@ function renderEventDetail(id) {
         e.participants.push({ id: store.nextPartId++, name: name, email: email, company: '', role: role });
         document.getElementById('newPartName').value = '';
         document.getElementById('newPartEmail').value = '';
+        saveStore();
         renderEventDetail(e.id);
         updateNavCounts();
     });
 }
 
 function updateNavCounts() {
-    var totalTasks = store.events.reduce(function (s, e) { return s + e.tasks.length; }, 0);
-    var doneTasks = store.events.reduce(function (s, e) { return s + e.tasks.filter(function (t) { return t.done; }).length; }, 0);
-    var participants = store.events.reduce(function (s, e) { return s + e.participants.length; }, 0);
-
     var eventCount = document.getElementById('eventCount');
-    var taskCount = document.getElementById('taskCount');
-    var partCount = document.getElementById('partCount');
     if (eventCount) eventCount.textContent = store.events.length;
-    if (taskCount) taskCount.textContent = doneTasks + '/' + totalTasks;
-    if (partCount) partCount.textContent = participants;
 }
 
 function getInitials(name) {
@@ -233,6 +210,7 @@ document.addEventListener('DOMContentLoaded', function () {
             desc: document.getElementById('evDesc').value.trim() || '',
             status: 'active', tasks: [], participants: []
         });
+        saveStore();
         this.reset();
         document.getElementById('addEventModal').classList.remove('open');
         renderEvents();
