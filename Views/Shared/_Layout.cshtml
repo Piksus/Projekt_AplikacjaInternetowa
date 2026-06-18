@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - EventMeet</title>
+    <link rel="stylesheet" href="~/css/style.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="brand">
+                <div>
+                    <h1>EventMeet</h1>
+                    <p>Organizacja nieformalnych wydarzen</p>
+                </div>
+                <button class="nav-toggle" id="navToggle">&#9776;</button>
+            </div>
+        </header>
+
+        <nav>
+            <ul id="navMenu">
+                <li><a asp-controller="Events" asp-action="Index" class="nav-link">Wydarzenia</a></li>
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    <li><a asp-controller="Admin" asp-action="Index" class="nav-link">Panel organizatora</a></li>
+                    <li><a asp-controller="Account" asp-action="Logout" class="nav-link">Wyloguj</a></li>
+                }
+                else
+                {
+                    <li><a asp-controller="Account" asp-action="Login" class="nav-link">Zaloguj sie</a></li>
+                }
+            </ul>
+        </nav>
+
+        <main>
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/js/site.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,35 @@
+@model List<Event>
+@{
+    ViewData["Title"] = "Panel organizatora";
+}
+
+<section>
+    <div class="card-header">
+        <h2>Panel organizatora</h2>
+        <a asp-controller="Admin" asp-action="Create" class="btn btn-primary btn-sm">+ Dodaj wydarzenie</a>
+    </div>
+
+    <div class="events-grid">
+        @if (!Model.Any())
+        {
+            <p style="grid-column:1/-1;text-align:center;color:#95a5a6;padding:40px 0">Brak wydarzeń. Dodaj pierwsze.</p>
+        }
+        @foreach (var e in Model)
+        {
+            var going = e.Participants.Count(p => p.Status == ParticipantStatus.Going);
+            <article class="event-card">
+                <h3>@e.Title</h3>
+                <p class="event-date">@e.EventDate.ToString("dd.MM.yyyy HH:mm") | @e.Location</p>
+                <p class="event-desc">Kategoria: @(e.Category?.Name ?? "-")</p>
+                <p class="event-meta">Uczestnicy: @e.Participants.Count (idzie: @going)</p>
+                <div class="add-row">
+                    <a asp-controller="Admin" asp-action="Edit" asp-route-id="@e.Id" class="btn btn-outline btn-sm">Edytuj</a>
+                    <a asp-controller="Admin" asp-action="Participants" asp-route-id="@e.Id" class="btn btn-outline btn-sm">Uczestnicy</a>
+                    <form method="post" asp-controller="Admin" asp-action="Delete" asp-route-id="@e.Id" onsubmit="return confirm('Usunąć wydarzenie?')" style="display:inline">
+                        <button type="submit" class="btn btn-outline btn-sm">Usuń</button>
+                    </form>
+                </div>
+            </article>
+        }
+    </div>
+</section>

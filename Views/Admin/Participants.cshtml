@@ -1,0 +1,84 @@
+@model ManageParticipantsViewModel
+@{
+    ViewData["Title"] = "Uczestnicy";
+}
+
+<section>
+    <a asp-controller="Admin" asp-action="Index" class="btn btn-outline btn-sm">&larr; Powrót</a>
+    <h2 style="margin-top:12px">Uczestnicy: @Model.EventTitle</h2>
+
+    <table style="width:100%;margin:16px 0;border-collapse:collapse">
+        <thead>
+            <tr style="text-align:left;border-bottom:2px solid #ecf0f1">
+                <th style="padding:8px">Imię i nazwisko</th>
+                <th style="padding:8px">Email</th>
+                <th style="padding:8px">Status</th>
+                <th style="padding:8px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Participants.Any())
+            {
+            <tr><td colspan="4" style="padding:16px;text-align:center;color:#95a5a6">Brak uczestników. Dodaj pierwszego poniżej.</td></tr>
+            }
+            @foreach (var p in Model.Participants)
+            {
+            <tr style="border-bottom:1px solid #ecf0f1">
+                <td style="padding:8px">@p.Name</td>
+                <td style="padding:8px">@p.Email</td>
+                <td style="padding:8px">
+                    <form method="post" asp-controller="Admin" asp-action="UpdateParticipantStatus" asp-route-id="@p.Id" asp-route-eventId="@Model.EventId">
+                        <select name="status" class="form-input" onchange="this.form.submit()">
+                            @if (p.Status == ParticipantStatus.Pending)
+                                {
+                            <option value="Pending" selected>Brak odpowiedzi</option>
+                                }
+                                else
+                                {
+                            <option value="Pending">Brak odpowiedzi</option>
+                                }
+                            @if (p.Status == ParticipantStatus.Going)
+                                {
+                            <option value="Going" selected>Idę</option>
+                                }
+                                else
+                                {
+                            <option value="Going">Idę</option>
+                                }
+                            @if (p.Status == ParticipantStatus.Maybe)
+                                {
+                            <option value="Maybe" selected>Może</option>
+                                }
+                                else
+                                {
+                            <option value="Maybe">Może</option>
+                                }
+                            @if (p.Status == ParticipantStatus.NotGoing)
+                                {
+                            <option value="NotGoing" selected>Nie idę</option>
+                                }
+                                else
+                                {
+                            <option value="NotGoing">Nie idę</option>
+                                }
+                        </select>
+                    </form>
+                </td>
+                <td style="padding:8px">
+                    <form method="post" asp-controller="Admin" asp-action="RemoveParticipant" asp-route-id="@p.Id" asp-route-eventId="@Model.EventId" onsubmit="return confirm('Usunąć uczestnika?')">
+                        <button type="submit" class="btn btn-outline btn-sm">Usuń</button>
+                    </form>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+
+    <h3>Dodaj uczestnika</h3>
+    <form method="post" asp-controller="Admin" asp-action="AddParticipant" class="add-row">
+        <input type="hidden" name="eventId" value="@Model.EventId" />
+        <input type="text" name="name" placeholder="Imię i nazwisko" required />
+        <input type="email" name="email" placeholder="Email" required />
+        <button type="submit" class="btn btn-primary btn-sm">Dodaj</button>
+    </form>
+</section>

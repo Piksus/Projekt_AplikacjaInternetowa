@@ -1,0 +1,53 @@
+@model EventFormViewModel
+@{
+    ViewData["Title"] = "Edytuj wydarzenie";
+}
+
+<section>
+    <h2>Edytuj wydarzenie</h2>
+    <form method="post" enctype="multipart/form-data" asp-controller="Admin" asp-action="Edit">
+        <input type="hidden" asp-for="Id" />
+        <div class="form-group">
+            <label asp-for="Title">Nazwa *</label>
+            <input asp-for="Title" class="form-input" />
+        </div>
+        <div class="form-group">
+            <label asp-for="EventDate">Data i godzina *</label>
+            <input asp-for="EventDate" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" class="form-input" />
+        </div>
+        <div class="form-group">
+            <label asp-for="Location">Miejsce *</label>
+            <input asp-for="Location" class="form-input" />
+        </div>
+        <div class="form-group">
+            <label asp-for="CategoryId">Kategoria *</label>
+            <select asp-for="CategoryId" class="form-input">
+                @foreach (var c in Model.CategoryOptions)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label asp-for="Description">Opis</label>
+            <textarea asp-for="Description" class="form-input" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label asp-for="Photo">Zdjęcie wydarzenia</label>
+            @if (!string.IsNullOrEmpty(Model.ExistingPhotoPath))
+            {
+                <p><img src="@Model.ExistingPhotoPath" style="max-height:100px;border-radius:8px" /></p>
+            }
+            <input asp-for="Photo" type="file" class="form-input" />
+        </div>
+        <div class="form-group">
+            <label asp-for="RulesFile">Regulamin / informacje dodatkowe (plik)</label>
+            @if (!string.IsNullOrEmpty(Model.ExistingRulesFilePath))
+            {
+                <p><a href="@Model.ExistingRulesFilePath" target="_blank">Aktualny plik</a></p>
+            }
+            <input asp-for="RulesFile" type="file" class="form-input" />
+        </div>
+        <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+    </form>
+</section>

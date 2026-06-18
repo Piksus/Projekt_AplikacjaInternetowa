@@ -1,0 +1,29 @@
+@model List<EventListItemViewModel>
+@{
+    ViewData["Title"] = "Wydarzenia";
+}
+
+<section>
+    <div class="card-header">
+        <h2>Nadchodzace i zakonczone wydarzenia</h2>
+    </div>
+
+    <div class="events-grid">
+        @if (!Model.Any())
+        {
+            <p style="grid-column:1/-1;text-align:center;color:#95a5a6;padding:40px 0">Brak wydarzen.</p>
+        }
+        @foreach (var e in Model)
+        {
+            <a class="event-card" asp-controller="Events" asp-action="Details" asp-route-id="@e.Id" style="text-decoration:none;color:inherit;display:block;">
+                <h3>@e.Title</h3>
+                <p class="event-date">@e.EventDate.ToString("dd.MM.yyyy HH:mm") | @e.Location</p>
+                <p class="event-desc">Kategoria: @e.CategoryName</p>
+                <p class="event-meta">
+                    <span>Idę: @e.GoingCount | Może: @e.MaybeCount | Nie idę: @e.NotGoingCount</span>
+                    <span class="event-status @(e.IsPast ? "planned" : "active")">@(e.IsPast ? "Zakończone" : "Nadchodzące")</span>
+                </p>
+            </a>
+        }
+    </div>
+</section>

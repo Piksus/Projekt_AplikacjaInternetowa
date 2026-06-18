@@ -1,0 +1,59 @@
+@model EventDetailsViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<section>
+    <a asp-controller="Events" asp-action="Index" class="btn btn-outline btn-sm">&larr; Powrót do listy</a>
+
+    <div class="detail-header">
+        <h2>@Model.Title</h2>
+        <span class="event-status active">@Model.CategoryName</span>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.PhotoPath))
+    {
+        <img src="@Model.PhotoPath" alt="@Model.Title" style="max-width:100%;border-radius:10px;margin-bottom:16px;" />
+    }
+
+    <p class="event-date"><strong>Data:</strong> @Model.EventDate.ToString("dd.MM.yyyy HH:mm")</p>
+    <p><strong>Miejsce:</strong> @Model.Location</p>
+    <p class="event-desc-full">@Model.Description</p>
+
+    @if (!string.IsNullOrEmpty(Model.RulesFilePath))
+    {
+        <p><a href="@Model.RulesFilePath" target="_blank">Regulamin / informacje dodatkowe</a></p>
+    }
+
+    <h3 style="margin-top:24px">Uczestnicy (@Model.TotalCount)</h3>
+    <p class="event-meta" style="border:none;padding-top:0">Idę: @Model.GoingCount | Może: @Model.MaybeCount | Nie idę: @Model.NotGoingCount | Brak odpowiedzi: @Model.PendingCount</p>
+
+    <div class="participants-grid">
+        @foreach (var p in Model.Participants)
+        {
+            <div class="participant-card">
+                <span class="avatar">@(p.Name.Length > 0 ? p.Name.Substring(0, 1).ToUpper() : "?")</span>
+                <div><strong>@p.Name</strong></div>
+                <span class="part-role @StatusClass(p.Status)">@StatusLabel(p.Status)</span>
+            </div>
+        }
+    </div>
+</section>
+
+@functions {
+    string StatusLabel(ParticipantStatus s) => s switch
+    {
+        ParticipantStatus.Going => "Idę",
+        ParticipantStatus.Maybe => "Może",
+        ParticipantStatus.NotGoing => "Nie idę",
+        _ => "Brak odpowiedzi"
+    };
+
+    string StatusClass(ParticipantStatus s) => s switch
+    {
+        ParticipantStatus.Going => "status-going",
+        ParticipantStatus.Maybe => "status-maybe",
+        ParticipantStatus.NotGoing => "status-notgoing",
+        _ => "status-pending"
+    };
+}
