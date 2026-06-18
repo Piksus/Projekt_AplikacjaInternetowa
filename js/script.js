@@ -1,4 +1,4 @@
-const store = {
+var store = {
     events: [
         {
             id: 1,
@@ -47,16 +47,17 @@ const store = {
             ],
             participants: []
         }
-    ]
+    ],
+    nextId: 4
 };
 
 function renderDashboard() {
-    const totalEvents = store.events.length;
-    const totalTasks = store.events.reduce((s, e) => s + e.tasks.length, 0);
-    const doneTasks = store.events.reduce((s, e) => s + e.tasks.filter(t => t.done).length, 0);
-    const totalParticipants = store.events.reduce((s, e) => s + e.participants.length, 0);
+    var totalEvents = store.events.length;
+    var totalTasks = store.events.reduce(function (s, e) { return s + e.tasks.length; }, 0);
+    var doneTasks = store.events.reduce(function (s, e) { return s + e.tasks.filter(function (t) { return t.done; }).length; }, 0);
+    var totalParticipants = store.events.reduce(function (s, e) { return s + e.participants.length; }, 0);
 
-    const dash = document.getElementById('dashboard');
+    var dash = document.getElementById('dashboard');
     dash.innerHTML = '<h2>Dashboard</h2><div class="stats">' +
         '<div>Wydarzenia <span>' + totalEvents + '</span></div>' +
         '<div>Zadania <span>' + doneTasks + '/' + totalTasks + '</span></div>' +
@@ -64,31 +65,92 @@ function renderDashboard() {
 }
 
 function renderEvents() {
-    const section = document.getElementById('events');
-    let html = '<h2>Wydarzenia</h2>';
+    var section = document.getElementById('events');
+    var html = '<div class="card-header"><h2>Wydarzenia</h2>' +
+        '<button class="btn btn-primary btn-sm" id="addEventBtn">+ Dodaj event</button></div>';
+
+    html += '<div class="events-grid">';
     store.events.forEach(function (e) {
-        html += '<article>' +
+        var doneTasks = e.tasks.filter(function (t) { return t.done; }).length;
+        html += '<article class="event-card" data-id="' + e.id + '">' +
             '<h3>' + e.title + '</h3>' +
-            '<p>' + e.date + ' | ' + e.location + '</p>' +
-            '<p>Status: ' + e.status + '</p>' +
-            '<p>Zadania: ' + e.tasks.filter(t => t.done).length + '/' + e.tasks.length +
-            ' | Uczestnicy: ' + e.participants.length + '</p>' +
-            '</article>';
+            '<p class="event-date">' + formatDate(e.date) + ' | ' + e.location + '</p>' +
+            '<p class="event-desc">' + e.desc + '</p>' +
+            '<div class="event-meta">' +
+            '<span>Zadania: ' + doneTasks + '/' + e.tasks.length + '</span>' +
+            '<span>Uczestnicy: ' + e.participants.length + '</span>' +
+            '<span class="event-status ' + e.status + '">' + (e.status === 'active' ? 'Aktywne' : 'Planowane') + '</span>' +
+            '</div></article>';
     });
+    html += '</div>';
     section.innerHTML = html;
+
+    document.getElementById('addEventBtn').addEventListener('click', function () {
+        document.getElementById('addEventModal').classList.add('open');
+    });
+}
+
+function formatDate(dateStr) {
+    var d = new Date(dateStr);
+    return d.getDate() + ' ' + ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca',
+        'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'][d.getMonth()] + ' ' + d.getFullYear();
 }
 
 document.addEventListener('DOMContentLoaded', function () {
     renderDashboard();
     renderEvents();
 
-    document.querySelectorAll('nav a').forEach(function (link) {
+    var toggle = document.getElementById('navToggle');
+    var menu = document.getElementById('navMenu');
+    if (toggle && menu) {
+        toggle.addEventListener('click', function () { menu.classList.toggle('open'); });
+    }
+
+    document.querySelectorAll('.nav-link').forEach(function (link) {
         link.addEventListener('click', function (e) {
             e.preventDefault();
             var target = this.getAttribute('href').substring(1);
-            document.querySelectorAll('section').forEach(function (s) { s.style.display = 'none'; });
+            document.querySelectorAll('main section').forEach(function (s) { s.style.display = 'none'; });
             var el = document.getElementById(target);
             if (el) el.style.display = 'block';
+            if (menu) menu.classList.remove('open');
         });
     });
+
+    var form = document.getElementById('addEventForm');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var title = document.getElementById('evTitle').value.trim();
+            var date = document.getElementById('evDate').value;
+            var location = document.getElementById('evLocation').value.trim();
+            var desc = document.getElementById('evDesc').value.trim();
+            if (!title || !date || !location) return;
+
+            store.events.push({
+                id: store.nextId++,
+                title: title,
+                date: date,
+                location: location,
+                desc: desc || '',
+                status: 'active',
+                tasks: [],
+                participants: []
+            });
+            form.reset();
+            document.getElementById('addEventModal').classList.remove('open');
+            renderDashboard();
+            renderEvents();
+        });
+    }
+
+    var modal = document.getElementById('addEventModal');
+    if (modal) {
+        modal.querySelector('.modal-close').addEventListener('click', function () {
+            modal.classList.remove('open');
+        });
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) modal.classList.remove('open');
+        });
+    }
 });
