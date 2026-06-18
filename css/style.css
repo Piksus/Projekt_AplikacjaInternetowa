@@ -216,6 +216,43 @@ section h2 {
     margin-bottom: 6px;
 }
 
+.detail-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.tab-btn {
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    font-size: .9rem;
+    cursor: pointer;
+    color: #7f8c8d;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color .2s, border-color .2s;
+}
+
+.tab-btn:hover {
+    color: #2c3e50;
+}
+
+.tab-btn.active {
+    color: #3498db;
+    border-bottom-color: #3498db;
+    font-weight: 600;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
 .task-list {
     list-style: none;
     margin-bottom: 12px;
@@ -239,13 +276,14 @@ section h2 {
     accent-color: #3498db;
 }
 
-.add-task-row {
+.add-row {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
-.add-task-row input {
-    flex: 1;
+.add-row input,
+.add-row select {
     padding: 8px 12px;
     border: 1px solid #dce1e8;
     border-radius: 6px;
@@ -253,9 +291,60 @@ section h2 {
     outline: none;
 }
 
-.add-task-row input:focus {
+.add-row input:focus,
+.add-row select:focus {
     border-color: #3498db;
 }
+
+.add-row input {
+    flex: 1;
+    min-width: 120px;
+}
+
+.participants-grid {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.participant-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid #ecf0f1;
+    border-radius: 8px;
+    font-size: .9rem;
+    flex-wrap: wrap;
+}
+
+.participant-card strong {
+    color: #2c3e50;
+    min-width: 140px;
+}
+
+.part-email {
+    color: #7f8c8d;
+    font-size: .85rem;
+}
+
+.part-company {
+    color: #95a5a6;
+    font-size: .85rem;
+}
+
+.part-role {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: .75rem;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+.part-role.speaker { background: #e8f4fd; color: #1976d2; }
+.part-role.attendee { background: #e8f5e9; color: #388e3c; }
+.part-role.organizer { background: #fff3e0; color: #e65100; }
+.part-role.sponsor { background: #f3e5f5; color: #7b1fa2; }
 
 .btn {
     display: inline-block;
@@ -303,7 +392,7 @@ section h2 {
     background: #fff;
     border-radius: 12px;
     padding: 24px;
-    max-width: 500px;
+    max-width: 560px;
     width: 90%;
     position: relative;
     max-height: 90vh;
@@ -387,5 +476,14 @@ section h2 {
 
     .events-grid {
         grid-template-columns: 1fr;
+    }
+
+    .participant-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .part-role {
+        margin-left: 0;
     }
 }

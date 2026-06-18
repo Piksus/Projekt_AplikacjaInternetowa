@@ -12,7 +12,11 @@ var store = {
                 { id: 2, text: 'Zamówienie cateringu', done: false },
                 { id: 3, text: 'Wydrukowanie identyfikatorów', done: true }
             ],
-            participants: []
+            participants: [
+                { id: 1, name: 'Anna Kowalska', email: 'anna@example.com', company: 'ABC', role: 'speaker' },
+                { id: 2, name: 'Jan Nowak', email: 'jan@example.com', company: 'XYZ', role: 'attendee' },
+                { id: 3, name: 'Ewa Wiśniewska', email: 'ewa@example.com', company: '123', role: 'organizer' }
+            ]
         },
         {
             id: 2,
@@ -25,7 +29,9 @@ var store = {
                 { id: 4, text: 'Przygotowanie materiałów', done: true },
                 { id: 5, text: 'Test sprzętu', done: false }
             ],
-            participants: []
+            participants: [
+                { id: 4, name: 'Piotr Zieliński', email: 'piotr@example.com', company: 'TechCorp', role: 'sponsor' }
+            ]
         },
         {
             id: 3,
@@ -44,13 +50,14 @@ var store = {
         }
     ],
     nextId: 10,
-    nextTaskId: 10
+    nextTaskId: 10,
+    nextPartId: 10
 };
 
 function renderDashboard() {
-    totalTasks = store.events.reduce(function (s, e) { return s + e.tasks.length; }, 0);
-    doneTasks = store.events.reduce(function (s, e) { return s + e.tasks.filter(function (t) { return t.done; }).length; }, 0);
-    participants = store.events.reduce(function (s, e) { return s + e.participants.length; }, 0);
+    var totalTasks = store.events.reduce(function (s, e) { return s + e.tasks.length; }, 0);
+    var doneTasks = store.events.reduce(function (s, e) { return s + e.tasks.filter(function (t) { return t.done; }).length; }, 0);
+    var participants = store.events.reduce(function (s, e) { return s + e.participants.length; }, 0);
 
     document.getElementById('dashboard').innerHTML =
         '<h2>Dashboard</h2><div class="stats">' +
@@ -105,18 +112,42 @@ function openEventDetail(id) {
         '<p>' + e.desc + '</p>' +
         '<div class="progress-section"><div class="progress-header"><span>Postęp zadań</span><span>' + done + '/' + e.tasks.length + ' (' + pct + '%)</span></div>' +
         '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div></div>' +
-        '<h4>Zadania</h4><ul class="task-list" data-event="' + e.id + '">';
+        '<div class="detail-tabs"><button class="tab-btn active" data-tab="tasks">Zadania</button><button class="tab-btn" data-tab="participants">Uczestnicy</button></div>';
 
+    html += '<div id="tasksTab" class="tab-content active">';
+    html += '<ul class="task-list" data-event="' + e.id + '">';
     e.tasks.forEach(function (t) {
         html += '<li><label><input type="checkbox" class="task-check" data-task="' + t.id + '" data-event="' + e.id + '"' + (t.done ? ' checked' : '') + '> ' + t.text + '</label></li>';
     });
+    html += '</ul>';
+    html += '<div class="add-row"><input type="text" id="newTaskInput" placeholder="Nowe zadanie...">' +
+        '<button class="btn btn-primary btn-sm" id="addTaskBtn">Dodaj</button></div></div>';
 
-    html += '</ul>' +
-        '<div class="add-task-row"><input type="text" id="newTaskInput" placeholder="Nowe zadanie...">' +
-        '<button class="btn btn-primary btn-sm" id="addTaskBtn">Dodaj</button></div>';
+    html += '<div id="participantsTab" class="tab-content">';
+    html += '<div class="participants-grid">';
+    e.participants.forEach(function (p) {
+        html += '<div class="participant-card"><strong>' + p.name + '</strong>' +
+            '<span class="part-email">' + p.email + '</span>' +
+            '<span class="part-company">' + p.company + '</span>' +
+            '<span class="part-role ' + p.role + '">' + roleLabel(p.role) + '</span></div>';
+    });
+    html += '</div>';
+    html += '<div class="add-row"><input type="text" id="newPartName" placeholder="Imię i nazwisko...">' +
+        '<input type="email" id="newPartEmail" placeholder="Email...">' +
+        '<select id="newPartRole"><option value="attendee">Uczestnik</option><option value="speaker">Prelegent</option><option value="organizer">Organizator</option><option value="sponsor">Sponsor</option></select>' +
+        '<button class="btn btn-primary btn-sm" id="addPartBtn">Dodaj</button></div></div>';
 
     body.innerHTML = html;
     modal.classList.add('open');
+
+    body.querySelectorAll('.tab-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            body.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+            body.querySelectorAll('.tab-content').forEach(function (c) { c.classList.remove('active'); });
+            this.classList.add('active');
+            document.getElementById(this.dataset.tab + 'Tab').classList.add('active');
+        });
+    });
 
     body.querySelectorAll('.task-check').forEach(function (cb) {
         cb.addEventListener('change', function () {
@@ -138,14 +169,30 @@ function openEventDetail(id) {
         var text = input.value.trim();
         if (!text) return;
         var ev = store.events.find(function (x) { return x.id == e.id; });
-        if (ev) {
-            ev.tasks.push({ id: store.nextTaskId++, text: text, done: false });
-        }
+        if (ev) ev.tasks.push({ id: store.nextTaskId++, text: text, done: false });
         input.value = '';
         openEventDetail(e.id);
         renderEvents();
         renderDashboard();
     });
+
+    document.getElementById('addPartBtn').addEventListener('click', function () {
+        var name = document.getElementById('newPartName').value.trim();
+        var email = document.getElementById('newPartEmail').value.trim();
+        var role = document.getElementById('newPartRole').value;
+        if (!name || !email) return;
+        var ev = store.events.find(function (x) { return x.id == e.id; });
+        if (ev) ev.participants.push({ id: store.nextPartId++, name: name, email: email, company: '', role: role });
+        document.getElementById('newPartName').value = '';
+        document.getElementById('newPartEmail').value = '';
+        openEventDetail(e.id);
+        renderEvents();
+        renderDashboard();
+    });
+}
+
+function roleLabel(r) {
+    return { speaker: 'Prelegent', attendee: 'Uczestnik', organizer: 'Organizator', sponsor: 'Sponsor' }[r] || r;
 }
 
 function formatDate(dateStr) {
@@ -179,8 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var loc = document.getElementById('evLocation').value.trim();
         if (!title || !date || !loc) return;
         store.events.push({
-            id: store.nextId++,
-            title: title, date: date, location: loc,
+            id: store.nextId++, title: title, date: date, location: loc,
             desc: document.getElementById('evDesc').value.trim() || '',
             status: 'active', tasks: [], participants: []
         });
