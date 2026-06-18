@@ -14,6 +14,8 @@ var defaultEvents = [
     ], participants: []}
 ];
 
+var filterStatus = 'all', filterSearch = '';
+
 function loadStore() {
     try {
         var saved = localStorage.getItem('eventmanager_store');
@@ -45,12 +47,34 @@ function renderDashboard() {
         '<div>Uczestnicy <span>' + participants + '</span></div></div></section>';
 }
 
-function renderEvents() {
-    var html = '<section><div class="card-header"><h2>Wydarzenia</h2>' +
-        '<button class="btn btn-primary btn-sm" id="addEventBtn">+ Dodaj event</button></div>' +
-        '<div class="events-grid">';
+function getFilteredEvents() {
+    return store.events.filter(function (e) {
+        if (filterStatus !== 'all' && e.status !== filterStatus) return false;
+        if (filterSearch) {
+            var q = filterSearch.toLowerCase();
+            if (e.title.toLowerCase().indexOf(q) === -1 && e.desc.toLowerCase().indexOf(q) === -1) return false;
+        }
+        return true;
+    });
+}
 
-    store.events.forEach(function (e) {
+function renderEvents() {
+    var filtered = getFilteredEvents();
+    var html = '<section><div class="card-header"><h2>Wydarzenia</h2>' +
+        '<button class="btn btn-primary btn-sm" id="addEventBtn">+ Dodaj event</button></div>';
+
+    html += '<div class="filters"><input type="text" id="searchInput" class="form-input filter-input" placeholder="Szukaj wydarzenia..." value="' + filterSearch + '">' +
+        '<select id="statusFilter" class="form-input filter-select"><option value="all"' + (filterStatus === 'all' ? ' selected' : '') + '>Wszystkie</option>' +
+        '<option value="active"' + (filterStatus === 'active' ? ' selected' : '') + '>Aktywne</option>' +
+        '<option value="planned"' + (filterStatus === 'planned' ? ' selected' : '') + '>Planowane</option></select></div>';
+
+    html += '<div class="events-grid">';
+
+    if (filtered.length === 0) {
+        html += '<p style="grid-column:1/-1;text-align:center;color:#95a5a6;padding:40px 0">Brak wydarzeń spełniających kryteria.</p>';
+    }
+
+    filtered.forEach(function (e) {
         var done = e.tasks.filter(function (t) { return t.done; }).length;
         var pct = e.tasks.length > 0 ? Math.round(done / e.tasks.length * 100) : 0;
         html += '<article class="event-card" data-id="' + e.id + '">' +
@@ -75,6 +99,15 @@ function renderEvents() {
         card.addEventListener('click', function () {
             renderEventDetail(this.dataset.id);
         });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', function () {
+        filterSearch = this.value;
+        renderEvents();
+    });
+    document.getElementById('statusFilter').addEventListener('change', function () {
+        filterStatus = this.value;
+        renderEvents();
     });
 }
 
@@ -193,6 +226,8 @@ document.addEventListener('DOMContentLoaded', function () {
         link.addEventListener('click', function (e) {
             e.preventDefault();
             var t = this.getAttribute('href').substring(1);
+            filterStatus = 'all';
+            filterSearch = '';
             if (t === 'dashboard') renderDashboard();
             if (t === 'events') renderEvents();
             document.getElementById('navMenu').classList.remove('open');
