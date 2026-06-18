@@ -38,8 +38,7 @@ wwwroot/uploads - przechowywane pliki (zdjęcia wydarzeń, regulaminy)
 
 ## Logowanie do panelu organizatora
 
-Dane logowania są zapisane na sztywno w kodzie (`Controllers/AccountController.cs`) -
-zgodnie z założeniem "najprościej jak się da", bez tabeli użytkowników:
+Dane logowania są zapisane na sztywno w kodzie (`Controllers/AccountController.cs`), bez tabeli użytkowników:
 
 ```
 login:  organizator
