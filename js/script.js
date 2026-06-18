@@ -14,7 +14,7 @@ var defaultEvents = [
     ], participants: []}
 ];
 
-var filterStatus = 'all', filterSearch = '';
+var filterStatus = 'all', filterSearch = '', pendingDeleteId = null, taskFilterEvent = 'all';
 
 function loadStore() {
     try {
@@ -40,11 +40,88 @@ function renderDashboard() {
     var doneTasks = store.events.reduce(function (s, e) { return s + e.tasks.filter(function (t) { return t.done; }).length; }, 0);
     var participants = store.events.reduce(function (s, e) { return s + e.participants.length; }, 0);
 
-    document.getElementById('mainContent').innerHTML =
-        '<section><h2>Dashboard</h2><div class="stats">' +
+    var html = '<section><div class="card-header"><h2>Dashboard</h2></div><div class="stats">' +
         '<div>Wydarzenia <span>' + store.events.length + '</span></div>' +
         '<div>Zadania <span>' + doneTasks + '/' + totalTasks + '</span></div>' +
         '<div>Uczestnicy <span>' + participants + '</span></div></div></section>';
+
+    html += renderAllTasksSection();
+
+    document.getElementById('mainContent').innerHTML = html;
+    bindAllTasksEvents();
+}
+
+function renderAllTasksSection() {
+    var html = '<section><div class="card-header"><h2>Wszystkie zadania</h2>' +
+        '<select id="taskFilterEvent" class="form-input filter-select task-filter-select">' +
+        '<option value="all"' + (taskFilterEvent === 'all' ? ' selected' : '') + '>Wszystkie wydarzenia</option>';
+
+    store.events.forEach(function (e) {
+        html += '<option value="' + e.id + '"' + (taskFilterEvent == e.id ? ' selected' : '') + '>' + e.title + '</option>';
+    });
+
+    html += '</select></div><div id="allTasksList" class="all-tasks">';
+
+    var filtered = [];
+    store.events.forEach(function (e) {
+        if (taskFilterEvent !== 'all' && taskFilterEvent != e.id) return;
+        e.tasks.forEach(function (t) {
+            filtered.push({ task: t, event: e });
+        });
+    });
+
+    if (filtered.length === 0) {
+        html += '<p style="text-align:center;color:#95a5a6;padding:20px 0">Brak zadań.</p>';
+    } else {
+        filtered.forEach(function (item) {
+            var t = item.task, e = item.event;
+            html += '<div class="all-task-row">' +
+                '<label class="all-task-label">' +
+                '<input type="checkbox" class="all-task-check" data-task="' + t.id + '" data-event="' + e.id + '"' + (t.done ? ' checked' : '') + '>' +
+                '<span class="all-task-text' + (t.done ? ' done' : '') + '">' + t.text + '</span></label>' +
+                '<span class="all-task-event">' + e.title + '</span>' +
+                '<button class="task-del all-task-del" data-task="' + t.id + '" data-event="' + e.id + '" title="Usuń zadanie">&times;</button></div>';
+        });
+    }
+
+    html += '</div></section>';
+    return html;
+}
+
+function bindAllTasksEvents() {
+    document.getElementById('taskFilterEvent').addEventListener('change', function () {
+        taskFilterEvent = this.value;
+        renderDashboard();
+    });
+
+    document.querySelectorAll('.all-task-check').forEach(function (cb) {
+        cb.addEventListener('change', function () {
+            var eid = parseInt(this.dataset.event);
+            var tid = parseInt(this.dataset.task);
+            var ev = store.events.find(function (e) { return e.id === eid; });
+            if (ev) {
+                var task = ev.tasks.find(function (t) { return t.id === tid; });
+                if (task) task.done = this.checked;
+            }
+            saveStore();
+            renderDashboard();
+            updateNavCounts();
+        });
+    });
+
+    document.querySelectorAll('.all-task-del').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var eid = parseInt(this.dataset.event);
+            var tid = parseInt(this.dataset.task);
+            var ev = store.events.find(function (e) { return e.id === eid; });
+            if (ev) {
+                ev.tasks = ev.tasks.filter(function (t) { return t.id !== tid; });
+            }
+            saveStore();
+            renderDashboard();
+            updateNavCounts();
+        });
+    });
 }
 
 function getFilteredEvents() {
@@ -64,7 +141,8 @@ function renderEvents() {
         '<button class="btn btn-primary btn-sm" id="addEventBtn">+ Dodaj event</button></div>';
 
     html += '<div class="filters"><input type="text" id="searchInput" class="form-input filter-input" placeholder="Szukaj wydarzenia..." value="' + filterSearch + '">' +
-        '<select id="statusFilter" class="form-input filter-select"><option value="all"' + (filterStatus === 'all' ? ' selected' : '') + '>Wszystkie</option>' +
+        '<select id="statusFilter" class="form-input filter-select">' +
+        '<option value="all"' + (filterStatus === 'all' ? ' selected' : '') + '>Wszystkie</option>' +
         '<option value="active"' + (filterStatus === 'active' ? ' selected' : '') + '>Aktywne</option>' +
         '<option value="planned"' + (filterStatus === 'planned' ? ' selected' : '') + '>Planowane</option></select></div>';
 
@@ -100,7 +178,6 @@ function renderEvents() {
             renderEventDetail(this.dataset.id);
         });
     });
-
     document.getElementById('searchInput').addEventListener('input', function () {
         filterSearch = this.value;
         renderEvents();
@@ -117,10 +194,12 @@ function renderEventDetail(id) {
     var doneTasks = e.tasks.filter(function (t) { return t.done; }).length;
     var pct = e.tasks.length > 0 ? Math.round(doneTasks / e.tasks.length * 100) : 0;
 
-    var html = '<section><button class="btn btn-outline btn-sm" id="backToEvents">&larr; Powrót do listy</button>' +
+    var html = '<section><div style="display:flex;gap:8px;margin-bottom:12px">' +
+        '<button class="btn btn-outline btn-sm" id="backToEvents">&larr; Powrót do listy</button>' +
+        '<button class="btn btn-sm" id="deleteEventBtn" style="background:#e74c3c;color:#fff;margin-left:auto">Usuń wydarzenie</button></div>' +
         '<div class="detail-header"><h2>' + e.title + '</h2>' +
         '<span class="event-status ' + e.status + '">' + (e.status === 'active' ? 'Aktywne' : 'Planowane') + '</span></div>' +
-        '<p class="event-date"><strong>Data:</strong> ' + formatDate(e.date) + '</p>' +
+        '<p><strong>Data:</strong> ' + formatDate(e.date) + '</p>' +
         '<p><strong>Miejsce:</strong> ' + e.location + '</p>' +
         '<p class="event-desc-full">' + e.desc + '</p>' +
         '<div class="progress-section"><div class="progress-header"><span>Postęp zadań</span><span>' + doneTasks + '/' + e.tasks.length + ' (' + pct + '%)</span></div>' +
@@ -130,19 +209,23 @@ function renderEventDetail(id) {
 
     html += '<div id="tasksTab" class="tab-content active"><ul class="task-list">';
     e.tasks.forEach(function (t) {
-        html += '<li><label><input type="checkbox" class="task-check" data-task="' + t.id + '"' + (t.done ? ' checked' : '') + '> ' + t.text + '</label></li>';
+        html += '<li style="display:flex;align-items:center;justify-content:space-between">' +
+            '<label><input type="checkbox" class="task-check" data-task="' + t.id + '"' + (t.done ? ' checked' : '') + '> ' + t.text + '</label>' +
+            '<button class="task-del" data-task="' + t.id + '" title="Usuń zadanie">&times;</button></li>';
     });
     html += '</ul><div class="add-row"><input type="text" id="newTaskInput" placeholder="Nowe zadanie...">' +
         '<button class="btn btn-primary btn-sm" id="addTaskBtn">Dodaj</button></div></div>';
 
     html += '<div id="participantsTab" class="tab-content"><div class="participants-grid">';
     e.participants.forEach(function (p) {
-        html += '<div class="participant-card"><span class="avatar">' + getInitials(p.name) + '</span>' +
-            '<div><strong>' + p.name + '</strong><span class="part-email">' + p.email + '</span></div>' +
-            '<span class="part-role ' + p.role + '">' + roleLabel(p.role) + '</span></div>';
+        html += '<div class="participant-card">' +
+            '<span class="avatar">' + getInitials(p.name) + '</span>' +
+            '<div style="flex:1"><strong>' + p.name + '</strong><span class="part-email">' + p.email + '</span></div>' +
+            '<span class="part-role ' + p.role + '">' + roleLabel(p.role) + '</span>' +
+            '<button class="part-del" data-part="' + p.id + '" title="Usuń uczestnika">&times;</button></div>';
     });
-    html += '</div>' +
-        '<div class="add-row"><input type="text" id="newPartName" placeholder="Imię i nazwisko...">' +
+    html += '</div><div class="add-row">' +
+        '<input type="text" id="newPartName" placeholder="Imię i nazwisko...">' +
         '<input type="email" id="newPartEmail" placeholder="Email...">' +
         '<select id="newPartRole"><option value="attendee">Uczestnik</option><option value="speaker">Prelegent</option><option value="organizer">Organizator</option><option value="sponsor">Sponsor</option></select>' +
         '<button class="btn btn-primary btn-sm" id="addPartBtn">Dodaj</button></div></div></section>';
@@ -150,6 +233,11 @@ function renderEventDetail(id) {
     document.getElementById('mainContent').innerHTML = html;
 
     document.getElementById('backToEvents').addEventListener('click', renderEvents);
+    document.getElementById('deleteEventBtn').addEventListener('click', function () {
+        pendingDeleteId = e.id;
+        document.getElementById('deleteConfirmMsg').textContent = 'Czy na pewno chcesz usunąć wydarzenie "' + e.title + '"?';
+        document.getElementById('deleteConfirmModal').classList.add('open');
+    });
 
     document.querySelectorAll('.tab-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -162,9 +250,28 @@ function renderEventDetail(id) {
 
     document.querySelectorAll('.task-check').forEach(function (cb) {
         cb.addEventListener('change', function () {
-            var taskId = this.dataset.task;
-            var task = e.tasks.find(function (t) { return t.id == taskId; });
+            var task = e.tasks.find(function (t) { return t.id == this.dataset.task; });
             if (task) task.done = this.checked;
+            saveStore();
+            renderEventDetail(e.id);
+            updateNavCounts();
+        });
+    });
+
+    document.querySelectorAll('.task-del').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var tid = this.dataset.task;
+            e.tasks = e.tasks.filter(function (t) { return t.id != tid; });
+            saveStore();
+            renderEventDetail(e.id);
+            updateNavCounts();
+        });
+    });
+
+    document.querySelectorAll('.part-del').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var pid = this.dataset.part;
+            e.participants = e.participants.filter(function (p) { return p.id != pid; });
             saveStore();
             renderEventDetail(e.id);
             updateNavCounts();
@@ -176,6 +283,7 @@ function renderEventDetail(id) {
         var text = input.value.trim();
         if (!text) return;
         e.tasks.push({ id: store.nextTaskId++, text: text, done: false });
+        input.value = '';
         saveStore();
         renderEventDetail(e.id);
         updateNavCounts();
@@ -250,6 +358,22 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('addEventModal').classList.remove('open');
         renderEvents();
         updateNavCounts();
+    });
+
+    document.getElementById('deleteConfirmBtn').addEventListener('click', function () {
+        if (pendingDeleteId !== null) {
+            store.events = store.events.filter(function (e) { return e.id !== pendingDeleteId; });
+            saveStore();
+            pendingDeleteId = null;
+            document.getElementById('deleteConfirmModal').classList.remove('open');
+            updateNavCounts();
+            renderEvents();
+        }
+    });
+
+    document.getElementById('deleteCancelBtn').addEventListener('click', function () {
+        pendingDeleteId = null;
+        document.getElementById('deleteConfirmModal').classList.remove('open');
     });
 
     document.querySelectorAll('.modal-close').forEach(function (btn) {

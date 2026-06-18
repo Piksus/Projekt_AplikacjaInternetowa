@@ -54,6 +54,18 @@
         </div>
     </div>
 
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content" style="max-width:400px">
+            <button class="modal-close">&times;</button>
+            <h3>Potwierdzenie</h3>
+            <p id="deleteConfirmMsg" style="margin:16px 0">Czy na pewno chcesz usunąć to wydarzenie?</p>
+            <div style="display:flex;gap:8px;justify-content:flex-end">
+                <button class="btn btn-outline" id="deleteCancelBtn">Anuluj</button>
+                <button class="btn btn-primary" style="background:#e74c3c" id="deleteConfirmBtn">Usuń</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/script.js"></script>
 </body>
 </html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventManager - Instrukcja</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .manual-wrap { max-width:800px; margin:0 auto; padding:40px 20px; }
+        .manual-wrap h1 { color:#2c3e50; font-size:2rem; }
+        .manual-wrap h2 { color:#2c3e50; font-size:1.4rem; margin-top:32px; border-bottom:2px solid #3498db; padding-bottom:8px; }
+        .manual-wrap h3 { color:#2980b9; font-size:1.1rem; margin-top:20px; }
+        .manual-wrap p, .manual-wrap li { color:#444; line-height:1.7; }
+        .manual-wrap ul, .manual-wrap ol { padding-left:24px; margin-bottom:16px; }
+        .manual-wrap li { margin-bottom:4px; }
+        .manual-wrap .step { background:#fff; border-radius:8px; padding:12px 16px; margin-bottom:12px; border-left:4px solid #3498db; }
+        .manual-wrap .snum { display:inline-block; background:#3498db; color:#fff; border-radius:50%; width:26px; height:26px; text-align:center; line-height:26px; font-weight:600; font-size:.8rem; margin-right:6px; }
+        .manual-wrap .back-link { display:inline-block; margin-top:24px; color:#3498db; text-decoration:none; font-weight:500; }
+        .manual-wrap .back-link:hover { text-decoration:underline; }
+        .manual-wrap .toc { background:#f8f9fa; border-radius:8px; padding:20px; margin:20px 0; }
+        .manual-wrap .toc a { color:#3498db; text-decoration:none; }
+        .manual-wrap .toc a:hover { text-decoration:underline; }
+    </style>
+</head>
+<body>
+    <div class="container manual-wrap">
+        <a href="index.html" class="back-link">&larr; Powrót do panelu</a>
+        <h1>EventManager</h1>
+        <p>Instrukcja użytkownika &mdash; Panel zarządzania wydarzeniami (wersja SPA)</p>
+
+        <div class="toc">
+            <h3>Spis treści</h3>
+            <ol>
+                <li><a href="#overview">Przegląd aplikacji</a></li>
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#events">Lista wydarzeń</a></li>
+                <li><a href="#detail">Szczegóły wydarzenia</a></li>
+                <li><a href="#tips">Wskazówki</a></li>
+            </ol>
+        </div>
+
+        <section id="overview">
+            <h2>1. Przegląd aplikacji</h2>
+            <p>EventManager to aplikacja webowa typu SPA (Single Page Application) do zarządzania wydarzeniami, zadaniami i uczestnikami. Wszystkie widoki dostępne są w obrębie jednej strony.</p>
+            <p>Dane przechowywane są w localStorage &ndash; trwałe między odświeżeniami.</p>
+        </section>
+
+        <section id="dashboard">
+            <h2>2. Dashboard</h2>
+            <p>Widok startowy z podsumowaniem i listą wszystkich zadań.</p>
+            <h3>Statystyki</h3>
+            <div class="step">
+                <p><span class="snum">1</span> Liczba wydarzeń, zadania (wykonane / wszystkie) i uczestnicy.</p>
+            </div>
+            <h3>Wszystkie zadania</h3>
+            <div class="step">
+                <p><span class="snum">1</span> Wybierz wydarzenie z listy rozwijanej aby filtrować.</p>
+                <p><span class="snum">2</span> Kliknij checkbox aby oznaczyć zadanie jako wykonane.</p>
+                <p><span class="snum">3</span> Kliknij <strong>&times;</strong> aby usunąć zadanie.</p>
+            </div>
+        </section>
+
+        <section id="events">
+            <h2>3. Lista wydarzeń</h2>
+            <p>Kliknij <strong>Wydarzenia</strong> w menu nawigacji.</p>
+            <h3>Filtrowanie</h3>
+            <div class="step">
+                <p><span class="snum">1</span> Wpisz frazę w polu wyszukiwania.</p>
+                <p><span class="snum">2</span> Wybierz status z listy rozwijanej.</p>
+            </div>
+            <h3>Dodawanie wydarzenia</h3>
+            <div class="step">
+                <p><span class="snum">1</span> Kliknij <strong>+ Dodaj event</strong>.</p>
+                <p><span class="snum">2</span> Wypełnij formularz i kliknij <strong>Dodaj</strong>.</p>
+            </div>
+        </section>
+
+        <section id="detail">
+            <h2>4. Szczegóły wydarzenia</h2>
+            <p>Kliknij kartę wydarzenia na liście aby otworzyć widok szczegółów.</p>
+            <h3>Zadania</h3>
+            <div class="step">
+                <p><span class="snum">1</span> Oznaczaj checkboxy &ndash; pasek postępu aktualizuje się.</p>
+                <p><span class="snum">2</span> Dodawaj zadania przez pole <strong>Nowe zadanie</strong>.</p>
+                <p><span class="snum">3</span> Usuwaj klikając <strong>&times;</strong>.</p>
+            </div>
+            <h3>Uczestnicy</h3>
+            <div class="step">
+                <p><span class="snum">1</span> Kliknij zakładkę <strong>Uczestnicy</strong>.</p>
+                <p><span class="snum">2</span> Dodawaj uczestników z imieniem, emailem i rolą.</p>
+                <p><span class="snum">3</span> Usuwaj klikając <strong>&times;</strong>.</p>
+            </div>
+            <h3>Usuwanie wydarzenia</h3>
+            <div class="step">
+                <p><span class="snum">1</span> Kliknij <strong>Usuń wydarzenie</strong> i potwierdź.</p>
+            </div>
+        </section>
+
+        <section id="tips">
+            <h2>5. Wskazówki</h2>
+            <ul>
+                <li>Dane zapisują się automatycznie w localStorage.</li>
+                <li>Nawigacja przez menu górne &ndash; na mobile rozwijane przez ikonę &#9776;.</li>
+                <li>Aplikacja w pełni responsywna.</li>
+            </ul>
+        </section>
+
+        <hr style="margin:32px 0;border:none;border-top:1px solid #ecf0f1">
+        <footer style="text-align:center;color:#95a5a6;font-size:.9rem">&copy; 2026 EventManager</footer>
+    </div>
+</body>
+</html>
